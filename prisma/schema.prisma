@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+datasource db {
+  provider = "mysql" // hoặc mysql, sqlite, sqlserver, mongodb tùy thuộc vào cơ sở dữ liệu bạn sử dụng
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Student {
+  student_id   Int          @id @default(autoincrement())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt()
+
+  name         String
+  address      String
+  email        String       @unique
+  phone_number String
+
+  classes      StudentOnClass[]
+}
+
+model Class {
+  class_id     Int          @id @default(autoincrement())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt()
+  
+  name         String
+  room         String
+  group        Int
+
+  subjects     Subject[]   
+  students     StudentOnClass[]
+}
+
+model Subject {
+  subject_id   Int          @id @default(autoincrement())
+  createdAt    DateTime     @default(now())
+  updatedAt    DateTime     @updatedAt()
+  
+  name         String
+  credit       Int
+
+  class_id     Int
+  class        Class        @relation(fields: [class_id], references: [class_id]) 
+}
+
+model StudentOnClass{
+  student_id   Int
+  class_id     Int
+  student      Student      @relation(fields: [student_id], references: [student_id])
+  class        Class        @relation(fields: [class_id], references: [class_id])
+
+  @@id([student_id, class_id])
+}
