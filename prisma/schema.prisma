@@ -1,14 +1,13 @@
 // This is your Prisma schema file,
 // learn more about it in the docs: https://pris.ly/d/prisma-schema
 
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// Define your database connection
 datasource db {
-  provider = "mysql" // hoặc mysql, sqlite, sqlserver, mongodb tùy thuộc vào cơ sở dữ liệu bạn sử dụng
+  provider = "mysql"
   url      = env("DATABASE_URL")
 }
 
+// Define the Prisma client generator
 generator client {
   provider = "prisma-client-js"
 }
@@ -35,7 +34,7 @@ model Class {
   room         String
   group        Int
 
-  subjects     Subject[]   
+  subjects     Subject[]  
   students     StudentOnClass[]
 }
 
@@ -47,15 +46,14 @@ model Subject {
   name         String
   credit       Int
 
-  class_id     Int
-  class        Class        @relation(fields: [class_id], references: [class_id]) 
+  class_id     Int?
+  class        Class?        @relation(fields: [class_id], references: [class_id], onDelete: SetNull) 
 }
 
-model StudentOnClass{
+model StudentOnClass {
   student_id   Int
   class_id     Int
-  student      Student      @relation(fields: [student_id], references: [student_id])
-  class        Class        @relation(fields: [class_id], references: [class_id])
-
+  student      Student     @relation(fields: [student_id], references: [student_id], onDelete: Cascade)
+  class        Class      @relation(fields: [class_id], references: [class_id], onDelete: Cascade)
   @@id([student_id, class_id])
 }

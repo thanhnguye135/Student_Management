@@ -6,27 +6,24 @@ import {
   IsString,
   IsArray,
   ValidateNested,
+  IsInt,
 } from 'class-validator';
-import { Class } from 'src/classes/model/class.model';
-import { BaseModel } from 'src/common/model/base.model';
+import { CreateStudentOnClassDto } from './create-student-on-class.dto';
 
-export class Student extends BaseModel {
-  @ApiProperty()
-  student_id: number;
-
+export class CreateStudentDto {
   @ApiProperty({
     description: 'Name of the student',
   })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  readonly name: string;
 
   @ApiProperty({
     description: 'Address of the student',
   })
   @IsString()
   @IsNotEmpty()
-  address: string;
+  readonly address: string;
 
   @ApiProperty({
     description: 'Email of the student',
@@ -34,21 +31,21 @@ export class Student extends BaseModel {
   @IsString()
   @IsNotEmpty()
   @IsEmail()
-  email: string;
+  readonly email: string;
 
   @ApiProperty({
     description: 'Phone number of the student',
   })
   @IsString()
   @IsNotEmpty()
-  phone_number: string;
+  readonly phone_number: string;
 
   @ApiProperty({
-    type: () => [Class],
+    type: () => [CreateStudentOnClassDto],
     description: 'List of classes associated with the student',
   })
-  @IsArray()
+  // @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => Class)
-  classes: Class[];
+  @Type(() => CreateStudentOnClassDto)
+  readonly classes: CreateStudentOnClassDto[];
 }

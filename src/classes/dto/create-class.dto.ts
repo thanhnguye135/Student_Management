@@ -7,50 +7,46 @@ import {
   IsArray,
   ValidateNested,
 } from 'class-validator';
-import { BaseModel } from 'src/common/model/base.model';
-import { Student } from 'src/students/model/student.model';
-import { Subject } from 'src/subjects/model/subject.model';
+import { CreateSubjectDto } from 'src/subjects/dto/create-subject.dto';
+import { CreateClassOnStudentDto } from './create-class-on-student.dto';
 
-export class Class extends BaseModel {
-  @ApiProperty()
-  class_id: number;
-
+export class CreateClassDto {
   @ApiProperty({
     description: 'Name of the class',
   })
   @IsString()
   @IsNotEmpty()
-  name: string;
+  readonly name: string;
 
   @ApiProperty({
-    description: 'Room where the class is held',
+    description: 'Room of the class',
   })
   @IsString()
   @IsNotEmpty()
-  room: string;
+  readonly room: string;
 
   @ApiProperty({
     description: 'Group of the class',
   })
-  @IsNotEmpty()
   @IsInt()
-  group: number;
+  @IsNotEmpty()
+  readonly group: number;
 
   @ApiProperty({
-    type: () => [Subject],
+    type: () => [CreateSubjectDto],
     description: 'List of subjects associated with the class',
   })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => Subject)
-  subjects: Subject[];
+  @Type(() => CreateSubjectDto)
+  readonly subjects: CreateSubjectDto[];
 
   @ApiProperty({
-    type: () => [Student],
+    type: () => [CreateClassOnStudentDto],
     description: 'List of students associated with the class',
   })
   @IsArray()
   @ValidateNested({ each: true })
-  @Type(() => Student)
-  students: Student[];
+  @Type(() => CreateClassOnStudentDto)
+  readonly students: CreateClassOnStudentDto[];
 }

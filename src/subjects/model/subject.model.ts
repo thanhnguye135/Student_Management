@@ -36,11 +36,9 @@ export class Subject extends BaseModel {
   class_id: number;
 
   @ApiProperty({
-    type: [Class],
+    type: () => [Class],
     description: 'A class associated with the class',
   })
-  @IsArray()
-  @ValidateNested({ each: true })
   @Type(() => Class)
-  students: Class[];
+  class: Class;
 }
