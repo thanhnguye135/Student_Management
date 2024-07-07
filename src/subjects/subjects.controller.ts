@@ -16,27 +16,37 @@ export class SubjectsController {
   constructor(private readonly subjectsService: SubjectsService) {}
 
   @Get()
-  findAll() {
-    return this.subjectsService.findAll();
+  async findAll() {
+    return await this.subjectsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.subjectsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const subjectId = this.parseId(id);
+    return await this.subjectsService.findOne(subjectId);
   }
 
   @Post()
-  create(@Body() createSubjectDto: CreateSubjectDto) {
-    return this.subjectsService.create(createSubjectDto);
+  async create(@Body() createSubjectDto: CreateSubjectDto) {
+    return await this.subjectsService.create(createSubjectDto);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateSubjectDto: UpdateSubjectDto) {
-    return this.subjectsService.update(+id, updateSubjectDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateSubjectDto: UpdateSubjectDto,
+  ) {
+    const subjectId = this.parseId(id);
+    return await this.subjectsService.update(subjectId, updateSubjectDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.subjectsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const subjectId = this.parseId(id);
+    return await this.subjectsService.remove(subjectId);
+  }
+
+  private parseId(id: string): number {
+    return parseInt(id, 10);
   }
 }

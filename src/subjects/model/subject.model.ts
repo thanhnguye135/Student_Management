@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsString,
-  IsInt,
-  IsNotEmpty,
-  IsArray,
-  ValidateNested,
-} from 'class-validator';
+import { IsString, IsInt, IsNotEmpty } from 'class-validator';
 import { Type } from 'class-transformer';
 import { Class } from 'src/classes/model/class.model';
 import { BaseModel } from 'src/common/model/base.model';

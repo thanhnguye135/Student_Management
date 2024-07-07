@@ -1,11 +1,5 @@
 import { ApiProperty } from '@nestjs/swagger';
-import {
-  IsInt,
-  IsNotEmpty,
-  IsString,
-  IsArray,
-  ValidateNested,
-} from 'class-validator';
+import { ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateSubjectDto } from 'src/subjects/dto/create-subject.dto';
 

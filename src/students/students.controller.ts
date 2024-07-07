@@ -16,27 +16,37 @@ export class StudentsController {
   constructor(private readonly studentsService: StudentsService) {}
 
   @Post()
-  create(@Body() createStudentDto: CreateStudentDto) {
-    return this.studentsService.create(createStudentDto);
+  async create(@Body() createStudentDto: CreateStudentDto) {
+    return await this.studentsService.create(createStudentDto);
   }
 
   @Get()
-  findAll() {
-    return this.studentsService.findAll();
+  async findAll() {
+    return await this.studentsService.findAll();
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.studentsService.findOne(+id);
+  async findOne(@Param('id') id: string) {
+    const studentId = this.parseId(id);
+    return await this.studentsService.findOne(studentId);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateStudentDto: UpdateStudentDto) {
-    return this.studentsService.update(+id, updateStudentDto);
+  async update(
+    @Param('id') id: string,
+    @Body() updateStudentDto: UpdateStudentDto,
+  ) {
+    const studentId = this.parseId(id);
+    return await this.studentsService.update(studentId, updateStudentDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.studentsService.remove(+id);
+  async remove(@Param('id') id: string) {
+    const studentId = this.parseId(id);
+    return await this.studentsService.remove(studentId);
+  }
+
+  private parseId(id: string): number {
+    return parseInt(id, 10);
   }
 }

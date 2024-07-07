@@ -1,5 +1,5 @@
-import { Injectable, HttpException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateClassDto } from './dto/create-class.dto';
 import { UpdateClassDto } from './dto/update-class.dto';
 
@@ -10,13 +10,10 @@ export class ClassesService {
   async findAll() {
     try {
       return await this.prismaService.class.findMany({
-        include: {
-          students: { include: { student: true } },
-          subjects: true,
-        },
+        include: this.includeRelations(),
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
@@ -24,23 +21,18 @@ export class ClassesService {
     try {
       return await this.prismaService.class.findUnique({
         where: { class_id: id },
-        include: {
-          students: { include: { student: true } },
-          subjects: true,
-        },
+        include: this.includeRelations(),
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
   async create(createClassDto: CreateClassDto) {
     try {
       const { students, subjects, ...classData } = createClassDto;
-      const studentData = students.entries().next().value[1];
-      const subjectData = subjects.entries().next().value[1];
-
-      //   console.log(studentData, subjectData);
+      const studentData = this.extractFirstEntry(students);
+      const subjectData = this.extractFirstEntry(subjects);
 
       return await this.prismaService.class.create({
         data: {
@@ -60,17 +52,10 @@ export class ClassesService {
             },
           },
         },
-        include: {
-          students: {
-            include: {
-              student: true,
-            },
-          },
-          subjects: true,
-        },
+        include: this.includeRelations(),
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
@@ -83,27 +68,40 @@ export class ClassesService {
         data: {
           ...classData,
         },
-        include: {
-          students: { include: { student: true } },
-          subjects: true,
-        },
+        include: this.includeRelations(),
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
   async remove(id: number) {
     try {
-      await this.prismaService.class.delete({
+      return await this.prismaService.class.delete({
         where: { class_id: id },
-        include: {
-          students: true,
-          subjects: true,
-        },
+        include: this.includeRelations(),
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
+  }
+
+  private includeRelations() {
+    return {
+      students: { include: { student: true } },
+      subjects: true,
+    };
+  }
+
+  private extractFirstEntry(entries: any) {
+    return entries.entries().next().value[1];
+  }
+
+  private handleException(error: any) {
+    throw new HttpException(
+      error.message || 'Internal Server Error',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      { cause: new Error(error) },
+    );
   }
 }

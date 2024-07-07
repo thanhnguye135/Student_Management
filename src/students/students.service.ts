@@ -1,7 +1,5 @@
-import { Injectable, NotFoundException, HttpException } from '@nestjs/common';
-import { PrismaService } from 'src/prisma/prisma.service';
-import { Student } from './model/student.model';
-import { Class } from 'src/classes/model/class.model';
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { PrismaService } from '../prisma/prisma.service';
 import { CreateStudentDto } from './dto/create-student.dto';
 import { UpdateStudentDto } from './dto/update-student.dto';
 
@@ -14,30 +12,27 @@ export class StudentsService {
       return await this.prismaService.student.findMany({
         include: { classes: true },
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
   async findOne(id: number) {
     try {
       return await this.prismaService.student.findUnique({
-        where: {
-          student_id: id,
-        },
-        include: {
-          classes: true,
-        },
+        where: { student_id: id },
+        include: { classes: true },
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
   async create(createStudentDto: CreateStudentDto) {
     try {
       const { classes, ...studentData } = createStudentDto;
-      const classData = classes.entries().next().value[1].class;
+      const classData = this.extractFirstClassData(classes);
+
       return await this.prismaService.student.create({
         data: {
           ...studentData,
@@ -59,56 +54,60 @@ export class StudentsService {
             },
           },
         },
-        include: {
-          classes: {
-            include: {
-              student: true,
-              class: true,
-            },
-          },
-        },
+        include: this.includeRelations(),
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
   async update(id: number, updateStudentDto: UpdateStudentDto) {
     try {
       const { classes, ...studentData } = updateStudentDto;
-      console.log(studentData, id);
 
       return await this.prismaService.student.update({
-        where: {
-          student_id: id,
-        },
+        where: { student_id: id },
         data: {
           ...studentData,
         },
-        include: {
-          classes: {
-            include: {
-              student: true,
-              class: true,
-            },
-          },
-        },
+        include: this.includeRelations(),
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
   }
 
   async remove(id: number) {
     try {
-      return this.prismaService.student.delete({
+      return await this.prismaService.student.delete({
         where: { student_id: id },
-        include: {
-          classes: true,
-        },
+        include: { classes: true },
       });
-    } catch (e) {
-      throw new HttpException(e, 500, { cause: new Error(e) });
+    } catch (error) {
+      this.handleException(error);
     }
+  }
+
+  private includeRelations() {
+    return {
+      classes: {
+        include: {
+          student: true,
+          class: true,
+        },
+      },
+    };
+  }
+
+  private extractFirstClassData(classes: any) {
+    return classes.entries().next().value[1].class;
+  }
+
+  private handleException(error: any) {
+    throw new HttpException(
+      error.message || 'Internal Server Error',
+      HttpStatus.INTERNAL_SERVER_ERROR,
+      { cause: new Error(error) },
+    );
   }
 }

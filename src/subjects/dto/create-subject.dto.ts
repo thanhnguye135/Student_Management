@@ -1,5 +1,4 @@
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
-import { IsString, IsNotEmpty, IsInt, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
 import { CreateClassDto } from 'src/classes/dto/create-class.dto';
 
